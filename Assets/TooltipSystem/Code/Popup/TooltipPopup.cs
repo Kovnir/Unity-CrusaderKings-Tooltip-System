@@ -5,6 +5,8 @@ using UnityEngine.UI;
 namespace Kovnir.TooltipSystem
 {
     [RequireComponent(typeof(LayoutElement))]
+    [RequireComponent(typeof(CanvasGroup))]
+    [RequireComponent(typeof(GraphicRaycaster))]
     public sealed class TooltipPopup : MonoBehaviour
     {
         [SerializeField] private TooltipTitle title;
@@ -12,11 +14,20 @@ namespace Kovnir.TooltipSystem
 
         [SerializeField] private uint characterWrapLimit = 50;
         
+        [Range(0, 1)]
+        [SerializeField] private float unfixedAlpha = 0.8f;
+        [Range(0, 1)]
+        [SerializeField] private float fixedAlpha = 1f;
+        
         private LayoutElement layoutElement;
+        private CanvasGroup canvasGroup;
+        private GraphicRaycaster graphicRaycaster;
 
         private void Awake()
         {
             layoutElement = GetComponent<LayoutElement>();
+            canvasGroup = GetComponent<CanvasGroup>();
+            graphicRaycaster = GetComponent<GraphicRaycaster>();
             if (title == null || description == null)
             {
                 Debug.LogError("Title or description is null in TooltipPopup");
@@ -25,6 +36,16 @@ namespace Kovnir.TooltipSystem
             if (layoutElement == null)
             {
                 Debug.LogError("LayoutElement is null in TooltipPopup");
+            }
+            
+            if (canvasGroup == null)
+            {
+                Debug.LogError("CanvasGroup is null in TooltipPopup");
+            }
+            
+            if (graphicRaycaster == null)
+            {
+                Debug.LogError("GraphicRaycaster is null in TooltipPopup");
             }
         }
 
@@ -43,10 +64,18 @@ namespace Kovnir.TooltipSystem
 
         public void Show(TooltipsBase.TooltipRecord tooltip)
         {
+            canvasGroup.alpha = unfixedAlpha;
+            graphicRaycaster.enabled = false;
             gameObject.SetActive(true);
             title.SetText(tooltip.Title);
             description.text = tooltip.Description;
             Resize();
+        }
+        
+        public void MakeFixed()
+        {
+            canvasGroup.alpha = fixedAlpha;
+            graphicRaycaster.enabled = true;
         }
     }
 }

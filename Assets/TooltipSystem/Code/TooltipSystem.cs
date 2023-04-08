@@ -11,12 +11,13 @@ namespace Kovnir.TooltipSystem
 
 //        [SerializeField] private float offset;
         [SerializeField] private float showDelay = 1;
+        [SerializeField] private float makeFixedDelay = 1;
 
         private static TooltipSystem instance;
         private TooltipsBase tooltipsBase;
 
         private readonly Dictionary<TooltipKeys, float> preparingTooltips = new();
-        private readonly Dictionary<TooltipKeys, TooltipPopup> shownTooltips = new();
+        private readonly Dictionary<TooltipKeys, (TooltipPopup Popup, float MakeFixedAt)> shownTooltips = new();
         TooltipsFactory tooltipsFactory;
 
         private void Awake()
@@ -49,7 +50,7 @@ namespace Kovnir.TooltipSystem
             {
                 TooltipPopup newPopup = tooltipsFactory.Create();
                 newPopup.Show(tooltip);
-                shownTooltips[key] = newPopup;
+                shownTooltips[key] = (newPopup, Time.time + makeFixedDelay);
             }
             else
             {
@@ -58,6 +59,18 @@ namespace Kovnir.TooltipSystem
         }
 
         private void Update()
+        {
+            ProcessPreparing();
+            foreach (KeyValuePair<TooltipKeys, (TooltipPopup Popup, float MakeFixedAt)> popupData in shownTooltips)
+            {
+                if (popupData.Value.MakeFixedAt <= Time.time)
+                {
+                    popupData.Value.Popup.MakeFixed();
+                }
+            }
+        }
+
+        private void ProcessPreparing()
         {
             List<TooltipKeys> toShow = new();
             foreach (var (key, timeToShow) in preparingTooltips)
@@ -85,8 +98,8 @@ namespace Kovnir.TooltipSystem
             {
                 if (shownTooltips.ContainsKey(key))
                 {
-                    shownTooltips[key].Hide();
-                    tooltipsFactory.ReturnToPool(shownTooltips[key]);
+                    shownTooltips[key].Popup.Hide();
+                    tooltipsFactory.ReturnToPool(shownTooltips[key].Popup);
                     shownTooltips.Remove(key);
                 }
             }
