@@ -9,9 +9,9 @@ namespace Kovnir.TooltipSystem
 {
     public sealed class TooltipSystem : MonoBehaviour
     {
+        private const int DEFAULT_SORTING = 32000;
         [SerializeField] private TooltipPopup tooltipPopup;
 
-//        [SerializeField] private float offset;
         [SerializeField] private float showDelay = 1;
         [SerializeField] private float makeFixedDelay = 1;
 
@@ -43,7 +43,7 @@ namespace Kovnir.TooltipSystem
         {
             instance.StartCoroutine(instance.TryHideInstanceCoroutine(key)); //todo make it more elegant
         }
-        
+
         private IEnumerator TryHideInstanceCoroutine(TooltipKeys key)
         {
             yield return null;
@@ -61,7 +61,7 @@ namespace Kovnir.TooltipSystem
             if (tooltipsBase.TryGetTooltip(key, out TooltipsBase.TooltipRecord tooltip))
             {
                 TooltipPopup newPopup = tooltipsFactory.Create();
-                newPopup.Show(tooltip, key);
+                newPopup.Show(tooltip, key, DEFAULT_SORTING + shownTooltips.Count + 1);
                 shownTooltips.Push((key, newPopup, TooltipState.CreateShown(Time.time + makeFixedDelay)));
             }
             else

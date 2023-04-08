@@ -10,6 +10,7 @@ namespace Kovnir.TooltipSystem
     [RequireComponent(typeof(LayoutElement))]
     [RequireComponent(typeof(CanvasGroup))]
     [RequireComponent(typeof(GraphicRaycaster))]
+    [RequireComponent(typeof(Canvas))]
     public sealed class TooltipPopup : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         private const string NAME = "TooltipPopup";
@@ -26,6 +27,7 @@ namespace Kovnir.TooltipSystem
         private LayoutElement layoutElement;
         private CanvasGroup canvasGroup;
         private GraphicRaycaster graphicRaycaster;
+        private Canvas canvas;
         
         private Action<TooltipKeys> onEnter;
         private Action<TooltipKeys> onExit;
@@ -39,6 +41,7 @@ namespace Kovnir.TooltipSystem
             layoutElement = GetComponent<LayoutElement>();
             canvasGroup = GetComponent<CanvasGroup>();
             graphicRaycaster = GetComponent<GraphicRaycaster>();
+            canvas = GetComponent<Canvas>();
             if (title == null || description == null)
             {
                 Debug.LogError("Title or description is null in TooltipPopup");
@@ -58,6 +61,11 @@ namespace Kovnir.TooltipSystem
             {
                 Debug.LogError("GraphicRaycaster is null in TooltipPopup");
             }
+            
+            if (canvas == null)
+            {
+                Debug.LogError("Canvas is null in TooltipPopup");
+            }
         }
 
         private void Resize()
@@ -74,7 +82,7 @@ namespace Kovnir.TooltipSystem
             gameObject.SetActive(false);
         }
 
-        public void Show(TooltipsBase.TooltipRecord tooltip, TooltipKeys key)
+        public void Show(TooltipsBase.TooltipRecord tooltip, TooltipKeys key, int sortingOrder)
         {
             canvasGroup.alpha = unfixedAlpha;
             graphicRaycaster.enabled = false;
@@ -84,6 +92,7 @@ namespace Kovnir.TooltipSystem
             onLinkUnHover = null;
             lastLinkId = string.Empty;
             
+            canvas.sortingOrder = sortingOrder;
             currentKey = key;
             gameObject.SetActive(true);
             title.SetText(tooltip.Title);
@@ -138,11 +147,13 @@ namespace Kovnir.TooltipSystem
 
         public void OnPointerEnter(PointerEventData eventData)
         {
+            Debug.Log("OnPointerEnter");
             onEnter?.Invoke(currentKey);
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
+            Debug.Log("OnPointerExit");
             onExit?.Invoke(currentKey);
         }
 
