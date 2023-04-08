@@ -11,7 +11,7 @@ namespace Kovnir.TooltipSystem
         [SerializeField] private TextMeshProUGUI description;
 
         [SerializeField] private uint characterWrapLimit = 50;
-
+        
         private LayoutElement layoutElement;
 
         private void Awake()

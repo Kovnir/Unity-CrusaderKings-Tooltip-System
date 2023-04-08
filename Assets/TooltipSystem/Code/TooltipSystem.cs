@@ -6,7 +6,8 @@ namespace Kovnir.TooltipSystem
     {
         [SerializeField]
         private TooltipPopup tooltipPopup;
-        
+        [SerializeField] private float offset;
+
         private static TooltipSystem instance;
         private TooltipsBase tooltipsBase;
         
@@ -35,7 +36,13 @@ namespace Kovnir.TooltipSystem
             if (tooltipsBase.TryGetTooltip(key, out TooltipsBase.TooltipRecord tooltip))
             {
                 tooltipPopup.Show(tooltip);
-                tooltipPopup.transform.position = Input.mousePosition;
+
+                Vector3 position = Input.mousePosition;
+                RectTransform rectTransform = tooltipPopup.GetComponent<RectTransform>();
+                
+                rectTransform.pivot = new Vector2(position.x / Screen.width, position.y / Screen.height);
+//                rectTransform.pivot = new Vector2(-offset, 1 + offset);
+                tooltipPopup.transform.position = position;
             }
             else
             {
