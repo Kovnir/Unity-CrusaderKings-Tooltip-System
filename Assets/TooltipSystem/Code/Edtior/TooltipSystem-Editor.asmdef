@@ -1,0 +1,18 @@
+{
+    "name": "TooltipSystem-Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:d81217725a21b43568d6ae36706ee53d"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

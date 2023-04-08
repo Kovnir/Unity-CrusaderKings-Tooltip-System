@@ -5,9 +5,9 @@ using UnityEngine.UI;
 namespace Kovnir.TooltipSystem
 {
     [RequireComponent(typeof(LayoutElement))]
-    public sealed class Tooltip : MonoBehaviour
+    public sealed class TooltipPopup : MonoBehaviour
     {
-        [SerializeField] private TextMeshProUGUI title;
+        [SerializeField] private TooltipTitle title;
         [SerializeField] private TextMeshProUGUI description;
 
         [SerializeField] private uint characterWrapLimit = 50;
@@ -17,27 +17,36 @@ namespace Kovnir.TooltipSystem
         private void Awake()
         {
             layoutElement = GetComponent<LayoutElement>();
-        }
-
-        private void Update()
-        {
             if (title == null || description == null)
             {
-                return;
+                Debug.LogError("Title or description is null in TooltipPopup");
             }
 
             if (layoutElement == null)
             {
-                return;
+                Debug.LogError("LayoutElement is null in TooltipPopup");
             }
+        }
 
-            // title.text = "Title";
-            // description.text = "Description";
-
-            int titleLength = title.text.Length;
+        private void Resize()
+        {
+            int titleLength = title.Length;
             int descriptionLength = description.text.Length;
             int totalLength = Mathf.Max(titleLength, descriptionLength);
             layoutElement.enabled = totalLength > characterWrapLimit;
+        }
+
+        public void Hide()
+        {
+            gameObject.SetActive(false);
+        }
+
+        public void Show(TooltipsBase.TooltipRecord tooltip)
+        {
+            gameObject.SetActive(true);
+            title.SetText(tooltip.Title);
+            description.text = tooltip.Description;
+            Resize();
         }
     }
 }
