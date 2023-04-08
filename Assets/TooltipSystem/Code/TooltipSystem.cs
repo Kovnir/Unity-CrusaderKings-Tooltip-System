@@ -1,6 +1,7 @@
-using System;
 using System.Collections.Generic;
+using System.Linq;
 using TooltipSystem.Code;
+using TooltipSystem.Code.PopupState;
 using UnityEngine;
 
 namespace Kovnir.TooltipSystem
@@ -16,10 +17,9 @@ namespace Kovnir.TooltipSystem
         private static TooltipSystem instance;
         private TooltipsBase tooltipsBase;
 
-        private readonly Dictionary<TooltipKeys, float> preparingTooltips = new();
-        private readonly Dictionary<TooltipKeys, (TooltipPopup Popup, float MakePreFixedAt)> shownTooltips = new();
-        private readonly Dictionary<TooltipKeys, (TooltipPopup Popup, float MakeFixedAt)> preFixedTooltips = new();
-        private readonly Dictionary<TooltipKeys, TooltipPopup> fixedTooltips = new();
+        private readonly Stack<(TooltipKeys Key, TooltipPopup Popup, TooltipState.TooltipStateBase state)>
+            shownTooltips = new();
+
         TooltipsFactory tooltipsFactory;
 
         private void Awake()
@@ -43,7 +43,7 @@ namespace Kovnir.TooltipSystem
 
         private void ShowInstance(TooltipKeys key)
         {
-            preparingTooltips[key] = Time.time + showDelay;
+            shownTooltips.Push((key, null, TooltipState.CreatePreparing(Time.time + showDelay)));
         }
 
         private void ShowImmediate(TooltipKeys key)
@@ -52,7 +52,7 @@ namespace Kovnir.TooltipSystem
             {
                 TooltipPopup newPopup = tooltipsFactory.Create();
                 newPopup.Show(tooltip, key);
-                shownTooltips[key] = (newPopup, Time.time + makeFixedDelay);
+                shownTooltips.Push((key, newPopup, TooltipState.CreateShown(Time.time + makeFixedDelay)));
             }
             else
             {
@@ -68,75 +68,81 @@ namespace Kovnir.TooltipSystem
 
         private void ProcessShown()
         {
-            List<TooltipKeys> toPrefix = new();
-            foreach (KeyValuePair<TooltipKeys, (TooltipPopup Popup, float MakePreFixedAt)> popupData in shownTooltips)
+            if (shownTooltips.Any())
             {
-                if (popupData.Value.MakePreFixedAt <= Time.time)
-                {
-                    toPrefix.Add(popupData.Key);
-                }
-            }
+                (TooltipKeys Key, TooltipPopup Popup, TooltipState.TooltipStateBase state) data = shownTooltips.Peek();
 
-            foreach (TooltipKeys tooltipKeys in toPrefix)
-            {
-                (TooltipPopup Popup, float MakePreFixedAt) preFixedTooltip = shownTooltips[tooltipKeys];
-                preFixedTooltips[tooltipKeys] = preFixedTooltip;
-                preFixedTooltip.Popup.MakePreFixed(OnEnterFixedPopup, OnExitFixedPopup);
-                shownTooltips.Remove(tooltipKeys);
+                if (data.state is TooltipState.Shown shown)
+                {
+                    if (shown.MakePreFixedAt <= Time.time)
+                    {
+                        shownTooltips.Pop();
+                        shownTooltips.Push((data.Key, data.Popup, TooltipState.CreatePreFixed()));
+                        data.Popup.MakePreFixed(OnEnterFixedPopup, OnExitFixedPopup);
+                    }
+                }
             }
         }
 
         private void OnEnterFixedPopup(TooltipKeys tooltipKeys)
         {
-            if (preFixedTooltips.ContainsKey(tooltipKeys))
+            (TooltipKeys Key, TooltipPopup Popup, TooltipState.TooltipStateBase state) data = shownTooltips.Peek();
+            if (data.Key == tooltipKeys)
             {
-                (TooltipPopup Popup, float MakeFixedAt) preFixedTooltip = preFixedTooltips[tooltipKeys];
-                fixedTooltips[tooltipKeys] = preFixedTooltip.Popup;
-                preFixedTooltips.Remove(tooltipKeys);
+                shownTooltips.Pop();
+                data.Popup.MakeFixed();
+                shownTooltips.Push((data.Key, data.Popup, TooltipState.CreateFixed()));
             }
         }
 
         private void OnExitFixedPopup(TooltipKeys tooltipKeys)
         {
-            if (fixedTooltips.ContainsKey(tooltipKeys))
+            (TooltipKeys Key, TooltipPopup Popup, TooltipState.TooltipStateBase state) data = shownTooltips.Peek();
+            if (data.Key == tooltipKeys)
             {
-                fixedTooltips[tooltipKeys].Hide();
-                tooltipsFactory.ReturnToPool(fixedTooltips[tooltipKeys]);
-                fixedTooltips.Remove(tooltipKeys);
+                HideAndRemovePopup(data.Popup);
             }
+        }
+
+        private void HideAndRemovePopup(TooltipPopup popup)
+        {
+            shownTooltips.Pop();
+            popup.Hide();
+            tooltipsFactory.ReturnToPool(popup);
         }
 
         private void ProcessPreparing()
         {
-            List<TooltipKeys> toShow = new();
-            foreach (var (key, timeToShow) in preparingTooltips)
+            if (shownTooltips.Any())
             {
-                if (preparingTooltips[key] <= Time.time)
-                {
-                    toShow.Add(key);
-                }
-            }
+                (TooltipKeys Key, TooltipPopup Popup, TooltipState.TooltipStateBase state) data = shownTooltips.Peek();
 
-            foreach (TooltipKeys key in toShow)
-            {
-                ShowImmediate(key);
-                preparingTooltips.Remove(key);
+                if (data.state is TooltipState.Preparing preparing)
+                {
+                    if (preparing.ShowAt <= Time.time)
+                    {
+                        shownTooltips.Pop();
+                        ShowImmediate(data.Key);
+                    }
+                }
             }
         }
 
         private void TryHideInstance(TooltipKeys key)
         {
-            if (preparingTooltips.ContainsKey(key))
+            if (shownTooltips.Any())
             {
-                preparingTooltips.Remove(key);
-            }
-            else
-            {
-                if (shownTooltips.ContainsKey(key))
+                (TooltipKeys Key, TooltipPopup Popup, TooltipState.TooltipStateBase State) data = shownTooltips.Peek();
+                if (data.Key == key)
                 {
-                    shownTooltips[key].Popup.Hide();
-                    tooltipsFactory.ReturnToPool(shownTooltips[key].Popup);
-                    shownTooltips.Remove(key);
+                    if (data.State is TooltipState.Preparing)
+                    {
+                        shownTooltips.Pop();
+                    }
+                    else if (data.State is TooltipState.Shown || data.State is TooltipState.PreFixed)
+                    {
+                        HideAndRemovePopup(data.Popup);
+                    }
                 }
             }
         }

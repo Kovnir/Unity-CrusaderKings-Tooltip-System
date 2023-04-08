@@ -11,6 +11,7 @@ namespace Kovnir.TooltipSystem
     [RequireComponent(typeof(GraphicRaycaster))]
     public sealed class TooltipPopup : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
+        private const string NAME = "TooltipPopup";
         [SerializeField] private TooltipTitle title;
         [SerializeField] private TextMeshProUGUI description;
 
@@ -65,6 +66,7 @@ namespace Kovnir.TooltipSystem
 
         public void Hide()
         {
+            gameObject.name = $"{NAME} - Hidden";
             gameObject.SetActive(false);
         }
 
@@ -80,6 +82,7 @@ namespace Kovnir.TooltipSystem
             title.SetText(tooltip.Title);
             description.text = tooltip.Description;
             Resize();
+            gameObject.name = $"{NAME} - Shown";
         }
         
         public void MakePreFixed(Action<TooltipKeys> onEnterFixedPopup, Action<TooltipKeys> onExitFixedPopup)
@@ -88,6 +91,7 @@ namespace Kovnir.TooltipSystem
             this.onEnterFixedPopup = onEnterFixedPopup;
             canvasGroup.alpha = fixedAlpha;
             graphicRaycaster.enabled = true;
+            gameObject.name = $"{NAME} - PreFixed";
         }
 
         public void OnPointerEnter(PointerEventData eventData)
@@ -98,6 +102,11 @@ namespace Kovnir.TooltipSystem
         public void OnPointerExit(PointerEventData eventData)
         {
             onExitFixedPopup?.Invoke(currentKey);
+        }
+
+        public void MakeFixed()
+        {
+            gameObject.name = $"{NAME} - Fixed";
         }
     }
 }

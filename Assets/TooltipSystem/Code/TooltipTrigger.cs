@@ -16,6 +16,12 @@ namespace Kovnir.TooltipSystem
 
         public void OnPointerExit(PointerEventData eventData)
         {
+            StartCoroutine(Exit()); //todo make it more elegant
+        }
+
+        private IEnumerator Exit()
+        {
+            yield return null;
             TooltipSystem.TryHide(key);
         }
     }

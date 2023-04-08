@@ -1,14 +1,15 @@
 using System.Collections.Generic;
+using System.Linq;
 using Kovnir.TooltipSystem;
 using UnityEngine;
 
 namespace TooltipSystem.Code
 {
-    public class TooltipsFactory
+    public sealed class TooltipsFactory
     {
         private readonly TooltipPopup prototype;
         private readonly Transform parent;
-        private readonly Stack<TooltipPopup> pool = new Stack<TooltipPopup>();
+        private readonly Stack<TooltipPopup> pool = new();
 
         public TooltipsFactory(TooltipPopup tooltipPopup, Transform parentTransform)
         {
@@ -19,7 +20,7 @@ namespace TooltipSystem.Code
         public TooltipPopup Create()
         {
             TooltipPopup newPopup;
-            if (pool.Count > 0)
+            if (pool.Any())
             {
                 newPopup = pool.Pop();
             }
