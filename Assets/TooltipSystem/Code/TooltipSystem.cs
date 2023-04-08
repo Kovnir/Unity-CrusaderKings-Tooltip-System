@@ -17,7 +17,9 @@ namespace Kovnir.TooltipSystem
         private TooltipsBase tooltipsBase;
 
         private readonly Dictionary<TooltipKeys, float> preparingTooltips = new();
-        private readonly Dictionary<TooltipKeys, (TooltipPopup Popup, float MakeFixedAt)> shownTooltips = new();
+        private readonly Dictionary<TooltipKeys, (TooltipPopup Popup, float MakePreFixedAt)> shownTooltips = new();
+        private readonly Dictionary<TooltipKeys, (TooltipPopup Popup, float MakeFixedAt)> preFixedTooltips = new();
+        private readonly Dictionary<TooltipKeys, TooltipPopup> fixedTooltips = new();
         TooltipsFactory tooltipsFactory;
 
         private void Awake()
@@ -49,7 +51,7 @@ namespace Kovnir.TooltipSystem
             if (tooltipsBase.TryGetTooltip(key, out TooltipsBase.TooltipRecord tooltip))
             {
                 TooltipPopup newPopup = tooltipsFactory.Create();
-                newPopup.Show(tooltip);
+                newPopup.Show(tooltip, key);
                 shownTooltips[key] = (newPopup, Time.time + makeFixedDelay);
             }
             else
@@ -61,12 +63,46 @@ namespace Kovnir.TooltipSystem
         private void Update()
         {
             ProcessPreparing();
-            foreach (KeyValuePair<TooltipKeys, (TooltipPopup Popup, float MakeFixedAt)> popupData in shownTooltips)
+            ProcessShown();
+        }
+
+        private void ProcessShown()
+        {
+            List<TooltipKeys> toPrefix = new();
+            foreach (KeyValuePair<TooltipKeys, (TooltipPopup Popup, float MakePreFixedAt)> popupData in shownTooltips)
             {
-                if (popupData.Value.MakeFixedAt <= Time.time)
+                if (popupData.Value.MakePreFixedAt <= Time.time)
                 {
-                    popupData.Value.Popup.MakeFixed();
+                    toPrefix.Add(popupData.Key);
                 }
+            }
+
+            foreach (TooltipKeys tooltipKeys in toPrefix)
+            {
+                (TooltipPopup Popup, float MakePreFixedAt) preFixedTooltip = shownTooltips[tooltipKeys];
+                preFixedTooltips[tooltipKeys] = preFixedTooltip;
+                preFixedTooltip.Popup.MakePreFixed(OnEnterFixedPopup, OnExitFixedPopup);
+                shownTooltips.Remove(tooltipKeys);
+            }
+        }
+
+        private void OnEnterFixedPopup(TooltipKeys tooltipKeys)
+        {
+            if (preFixedTooltips.ContainsKey(tooltipKeys))
+            {
+                (TooltipPopup Popup, float MakeFixedAt) preFixedTooltip = preFixedTooltips[tooltipKeys];
+                fixedTooltips[tooltipKeys] = preFixedTooltip.Popup;
+                preFixedTooltips.Remove(tooltipKeys);
+            }
+        }
+
+        private void OnExitFixedPopup(TooltipKeys tooltipKeys)
+        {
+            if (fixedTooltips.ContainsKey(tooltipKeys))
+            {
+                fixedTooltips[tooltipKeys].Hide();
+                tooltipsFactory.ReturnToPool(fixedTooltips[tooltipKeys]);
+                fixedTooltips.Remove(tooltipKeys);
             }
         }
 

@@ -1,5 +1,7 @@
+using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Kovnir.TooltipSystem
@@ -7,7 +9,7 @@ namespace Kovnir.TooltipSystem
     [RequireComponent(typeof(LayoutElement))]
     [RequireComponent(typeof(CanvasGroup))]
     [RequireComponent(typeof(GraphicRaycaster))]
-    public sealed class TooltipPopup : MonoBehaviour
+    public sealed class TooltipPopup : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         [SerializeField] private TooltipTitle title;
         [SerializeField] private TextMeshProUGUI description;
@@ -22,6 +24,10 @@ namespace Kovnir.TooltipSystem
         private LayoutElement layoutElement;
         private CanvasGroup canvasGroup;
         private GraphicRaycaster graphicRaycaster;
+        
+        private Action<TooltipKeys> onEnterFixedPopup;
+        private TooltipKeys currentKey;
+        private Action<TooltipKeys> onExitFixedPopup;
 
         private void Awake()
         {
@@ -62,20 +68,36 @@ namespace Kovnir.TooltipSystem
             gameObject.SetActive(false);
         }
 
-        public void Show(TooltipsBase.TooltipRecord tooltip)
+        public void Show(TooltipsBase.TooltipRecord tooltip, TooltipKeys key)
         {
             canvasGroup.alpha = unfixedAlpha;
             graphicRaycaster.enabled = false;
+            onEnterFixedPopup = null;
+            onExitFixedPopup = null;
+            
+            currentKey = key;
             gameObject.SetActive(true);
             title.SetText(tooltip.Title);
             description.text = tooltip.Description;
             Resize();
         }
         
-        public void MakeFixed()
+        public void MakePreFixed(Action<TooltipKeys> onEnterFixedPopup, Action<TooltipKeys> onExitFixedPopup)
         {
+            this.onExitFixedPopup = onExitFixedPopup;
+            this.onEnterFixedPopup = onEnterFixedPopup;
             canvasGroup.alpha = fixedAlpha;
             graphicRaycaster.enabled = true;
+        }
+
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            onEnterFixedPopup?.Invoke(currentKey);
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            onExitFixedPopup?.Invoke(currentKey);
         }
     }
 }
