@@ -1,4 +1,5 @@
 using System;
+using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -26,10 +27,13 @@ namespace Kovnir.TooltipSystem
         private CanvasGroup canvasGroup;
         private GraphicRaycaster graphicRaycaster;
         
-        private Action<TooltipKeys> onEnterFixedPopup;
-        private TooltipKeys currentKey;
-        private Action<TooltipKeys> onExitFixedPopup;
+        private Action<TooltipKeys> onEnter;
+        private Action<TooltipKeys> onExit;
+        private Action<string> onLinkHover;
+        private Action<string> onLinkUnHover;
 
+        private TooltipKeys currentKey;
+        private string lastLinkId = string.Empty;
         private void Awake()
         {
             layoutElement = GetComponent<LayoutElement>();
@@ -74,21 +78,59 @@ namespace Kovnir.TooltipSystem
         {
             canvasGroup.alpha = unfixedAlpha;
             graphicRaycaster.enabled = false;
-            onEnterFixedPopup = null;
-            onExitFixedPopup = null;
+            onEnter = null;
+            onExit = null;
+            onLinkHover = null;
+            onLinkUnHover = null;
+            lastLinkId = string.Empty;
             
             currentKey = key;
             gameObject.SetActive(true);
             title.SetText(tooltip.Title);
-            description.text = tooltip.Description;
+
+            string descriptionText = tooltip.Description;
+            Regex regex = new Regex(@"\[(.*?)\]\{(.*?)\}");
+            if (regex.IsMatch(descriptionText))
+            {
+                descriptionText = regex.Replace(descriptionText, "<b><link=$2><#0000FF>$1</color></link></b>");
+            }
+
+            description.text = descriptionText;
+            
             Resize();
             gameObject.name = $"{NAME} - Shown";
         }
-        
-        public void MakePreFixed(Action<TooltipKeys> onEnterFixedPopup, Action<TooltipKeys> onExitFixedPopup)
+
+        public void Update()
         {
-            this.onExitFixedPopup = onExitFixedPopup;
-            this.onEnterFixedPopup = onEnterFixedPopup;
+            if (graphicRaycaster.enabled)
+            {
+                var linkIndex = TMP_TextUtilities.FindIntersectingLink(description, Input.mousePosition, null);
+                if (linkIndex >= 0)
+                {
+                    var linkInfo = description.textInfo.linkInfo[linkIndex];
+                    string linkID = linkInfo.GetLinkID();
+                    if (linkID != lastLinkId)
+                    {
+                        lastLinkId = linkID;
+                        onLinkHover?.Invoke(linkID);
+                    }
+                }
+                else
+                {
+                    if (lastLinkId != string.Empty)
+                    {
+                        onLinkUnHover?.Invoke(lastLinkId);
+                        lastLinkId = string.Empty;
+                    }
+                }
+            }
+        }
+
+        public void MakePreFixed(Action<TooltipKeys> onEnter, Action<TooltipKeys> onExit)
+        {
+            this.onExit = onExit;
+            this.onEnter = onEnter;
             canvasGroup.alpha = fixedAlpha;
             graphicRaycaster.enabled = true;
             gameObject.name = $"{NAME} - PreFixed";
@@ -96,16 +138,18 @@ namespace Kovnir.TooltipSystem
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            onEnterFixedPopup?.Invoke(currentKey);
+            onEnter?.Invoke(currentKey);
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            onExitFixedPopup?.Invoke(currentKey);
+            onExit?.Invoke(currentKey);
         }
 
-        public void MakeFixed()
+        public void MakeFixed(Action<string> onLinkHover, Action<string> onLinkUnHover)
         {
+            this.onLinkHover = onLinkHover;
+            this.onLinkUnHover = onLinkUnHover;
             gameObject.name = $"{NAME} - Fixed";
         }
     }

@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TooltipSystem.Code;
@@ -38,7 +39,16 @@ namespace Kovnir.TooltipSystem
 
         public static void Show(TooltipKeys key) => instance.ShowInstance(key);
 
-        public static void TryHide(TooltipKeys key) => instance.TryHideInstance(key);
+        public static void TryHide(TooltipKeys key)
+        {
+            instance.StartCoroutine(instance.TryHideInstanceCoroutine(key)); //todo make it more elegant
+        }
+        
+        private IEnumerator TryHideInstanceCoroutine(TooltipKeys key)
+        {
+            yield return null;
+            TryHideInstance(key);
+        }
 
 
         private void ShowInstance(TooltipKeys key)
@@ -90,7 +100,27 @@ namespace Kovnir.TooltipSystem
             if (data.Key == tooltipKeys)
             {
                 shownTooltips.Pop();
-                data.Popup.MakeFixed();
+                data.Popup.MakeFixed((s) =>
+                {
+                    if (TooltipKeys.TryParse(s, out TooltipKeys key))
+                    {
+                        ShowInstance(key);
+                    }
+                    else
+                    {
+                        Debug.LogError($"Tooltip key is not valid {s}");
+                    }
+                }, (s) =>
+                {
+                    if (TooltipKeys.TryParse(s, out TooltipKeys key))
+                    {
+                        TryHideInstance(key);
+                    }
+                    else
+                    {
+                        Debug.LogError($"Tooltip key is not valid {s}");
+                    }
+                });
                 shownTooltips.Push((data.Key, data.Popup, TooltipState.CreateFixed()));
             }
         }

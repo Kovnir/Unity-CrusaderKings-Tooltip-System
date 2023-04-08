@@ -18,7 +18,8 @@ MonoBehaviour:
     Description: Hint for button 1
   - Key: b2
     Title: 
-    Description: Hint for button 2 {b1}
+    Description: Hint for button 2. Do you want to see hind for [Button 1]{b1}?
   - Key: b3
     Title: 
-    Description: Hint for button 2 {b1}
+    Description: Hint for button 3. Do you want to see hind for [Button 2]{b2}? Or
+      [Button 1]{b1}?

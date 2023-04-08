@@ -9,20 +9,8 @@ namespace Kovnir.TooltipSystem
     {
         [SerializeField] private TooltipKeys key;
 
-        public void OnPointerEnter(PointerEventData eventData)
-        {
-            TooltipSystem.Show(key);
-        }
+        public void OnPointerEnter(PointerEventData eventData) => TooltipSystem.Show(key);
 
-        public void OnPointerExit(PointerEventData eventData)
-        {
-            StartCoroutine(Exit()); //todo make it more elegant
-        }
-
-        private IEnumerator Exit()
-        {
-            yield return null;
-            TooltipSystem.TryHide(key);
-        }
+        public void OnPointerExit(PointerEventData eventData) => TooltipSystem.TryHide(key);
     }
 }
