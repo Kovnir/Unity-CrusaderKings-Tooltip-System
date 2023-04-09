@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Kovnir.TooltipSystem
 {
-    [CreateAssetMenu(menuName = "Create TooltipsBase", fileName = "TooltipsBase", order = 0)]
+//    [CreateAssetMenu(menuName = "Create TooltipsBase", fileName = "TooltipsBase", order = 0)]
     public sealed class TooltipsBase : ScriptableObject
     {
         [Serializable]
