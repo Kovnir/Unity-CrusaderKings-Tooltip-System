@@ -24,51 +24,7 @@ MonoBehaviour:
       eu gravida magna, vel aliquam ligula. Praesent gravida lorem at leo pellentesque,
       ut commodo ex dictum. Nulla pretium massa vitae metus pharetra, id sollicitudin
       nisl facilisis. Donec eu tempor purus, sed consequat nibh. Pellentesque ultrices
-      nisl sapien, vitae iaculis urna pellentesque eget.
-
-
-      Sed ac blandit orci.
-      Duis sodales sapien at mauris porta feugiat. Suspendisse vel rhoncus turpis,
-      ac tempus dui. Vestibulum id consequat diam. Pellentesque auctor eleifend nunc,
-      vel commodo tortor faucibus ut. Mauris eget libero egestas, accumsan ante nec,
-      sollicitudin turpis. Cras in turpis in ante ullamcorper placerat at at libero.
-      Suspendisse potenti. Pellentesque vulputate, dui id consequat egestas, quam
-      dui elementum nibh, in molestie magna risus a lacus. Mauris accumsan odio eget
-      nisl hendrerit, sollicitudin volutpat justo imperdiet. Duis vel urna turpis.
-      Sed in leo vel tellus ornare fermentum. Donec pretium dignissim justo at condimentum.
-      Proin mollis hendrerit pellentesque.
-
-
-      Pellentesque id vestibulum magna.
-      Maecenas sed mi magna. Curabitur eu varius risus. Praesent eu dolor arcu. Etiam
-      lacus metus, dictum vitae faucibus quis, tristique nec nunc. Donec a erat urna.
-      Quisque viverra risus id ultricies efficitur. Curabitur fermentum, ipsum porta
-      dictum aliquam, risus ligula consectetur mauris, eget mollis massa erat nec
-      justo. Mauris ac erat tortor. Ut vel augue volutpat, vulputate enim eu, sodales
-      lacus. Vivamus lacinia enim in leo sollicitudin pharetra. Vestibulum lacinia
-      ullamcorper nunc, ut efficitur augue volutpat quis. Nunc interdum felis nec
-      congue porta. Vestibulum feugiat volutpat eros, at consectetur eros ullamcorper
-      ac. Praesent dolor dolor, varius quis magna nec, blandit elementum tortor.
-      Vivamus semper sit amet ipsum vitae tincidunt.
-
-
-      Nullam et pretium libero.
-      Proin fringilla lorem lacinia laoreet volutpat. Morbi ut augue quis diam lobortis
-      feugiat quis nec velit. Cras orci lectus, ultrices nec aliquet nec, commodo
-      a eros. Nullam volutpat enim arcu, vitae ullamcorper leo lacinia sed. Pellentesque
-      habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
-      Phasellus cursus libero a ipsum lacinia molestie. Nam ac aliquet felis. Phasellus
-      laoreet vel tellus eget laoreet. Suspendisse potenti. Nulla vitae lobortis
-      metus, pretium dapibus diam. Ut id tempor magna.
-
-
-      Sed imperdiet libero
-      non ante aliquet, tristique maximus mi rhoncus. Suspendisse a vulputate orci.
-      Suspendisse enim enim, vehicula nec quam et, accumsan consectetur nisl. Vivamus
-      vel dapibus nulla. Morbi nec risus lacus. Praesent auctor, dui non convallis
-      ultricies, lorem felis maximus est, eget efficitur nisi est et augue. Nulla
-      molestie vitae lectus ut ultricies. Nunc feugiat lorem a sem tristique, quis
-      finibus est auctor.'
+      nisl sapien, vitae iaculis urna pellentesque eget.'
   - Key: b2
     Title: 
     Description: Hint for button 2. Do you want to see hind for [Button 1]{b1}?
