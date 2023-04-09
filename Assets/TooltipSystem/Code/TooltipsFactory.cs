@@ -34,7 +34,6 @@ namespace TooltipSystem.Code
             RectTransform rectTransform = newPopup.GetComponent<RectTransform>();
 
             rectTransform.pivot = new Vector2(position.x / Screen.width, position.y / Screen.height);
-//                rectTransform.pivot = new Vector2(-offset, 1 + offset);
             newPopup.transform.position = position;
             return newPopup;
         }
