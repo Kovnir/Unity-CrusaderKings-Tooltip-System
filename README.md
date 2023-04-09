@@ -35,7 +35,7 @@ In the `TooltipsBase`, you can add `Keys`, `Description` texts, and an optional 
 
 You will also likely need to localize it, it will be easy to do, for example in the TooltipSystem class.
 
-![Example of the term base](Doc/terms_base.png)
+<img src="Doc/terms_base.png" width="50%"></img>
 
 When you add keys, you can generate an enum with them, which simplifies working in the code. But be careful when deleting terms. Currently, it is not validated, so the maximum you will get is a runtime error.
 
@@ -49,7 +49,7 @@ There are four states for the tooltip:
 
 Settings for `Show Delay` and `Make Fixed Delay` are both located on the `TooltipsCanvas` GameObject.
 
-![Main settings of the tooltip system](Doc/main_settings.png)
+<img src="Doc/main_settings.png" width="50%"></img>
 
 ### Tooltip Prefab
 
@@ -57,8 +57,4 @@ Settings for `Show Delay` and `Make Fixed Delay` are both located on the `Toolti
 
 Art for UI is taken from this asset: [Clean Settings UI](https://assetstore.unity.com/packages/tools/gui/clean-settings-ui-65588)
 
-![Example of tooltip prefab](Doc/tooltip_prefab.png)
-
-
-
-
+<img src="Doc/tooltip_prefab.png" width="30%"></img>
