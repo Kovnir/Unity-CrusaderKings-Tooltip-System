@@ -36,6 +36,8 @@ namespace Kovnir.TooltipSystem
 
         private TooltipKeys currentKey;
         private string lastLinkId = string.Empty;
+        public bool Focused { get; private set; }
+        
         private void Awake()
         {
             layoutElement = GetComponent<LayoutElement>();
@@ -91,6 +93,7 @@ namespace Kovnir.TooltipSystem
             onLinkHover = null;
             onLinkUnHover = null;
             lastLinkId = string.Empty;
+            Focused = false;
             
             canvas.sortingOrder = sortingOrder;
             currentKey = key;
@@ -147,13 +150,13 @@ namespace Kovnir.TooltipSystem
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            Debug.Log("OnPointerEnter");
+            Focused = true;
             onEnter?.Invoke(currentKey);
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            Debug.Log("OnPointerExit");
+            Focused = false;
             onExit?.Invoke(currentKey);
         }
 

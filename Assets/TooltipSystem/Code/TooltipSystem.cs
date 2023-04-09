@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,13 +42,18 @@ namespace Kovnir.TooltipSystem
 
         public static void TryHide(TooltipKeys key)
         {
-            instance.StartCoroutine(instance.TryHideInstanceCoroutine(key)); //todo make it more elegant
+            instance.StartCoroutine(NextFrame(() =>
+            {
+                instance.TryHideInstance(key);
+            }));
         }
 
-        private IEnumerator TryHideInstanceCoroutine(TooltipKeys key)
+        //todo make it more elegant
+        //let UI be recalculated
+        private static IEnumerator NextFrame(Action nextFrameCallback)
         {
             yield return null;
-            TryHideInstance(key);
+            nextFrameCallback();
         }
 
 
@@ -139,6 +145,10 @@ namespace Kovnir.TooltipSystem
             shownTooltips.Pop();
             popup.Hide();
             tooltipsFactory.ReturnToPool(popup);
+            if (shownTooltips.Any())
+            {
+                StartCoroutine(NextFrame(TryHideNextFixed));
+            }
         }
 
         private void ProcessPreparing()
@@ -170,6 +180,20 @@ namespace Kovnir.TooltipSystem
                         shownTooltips.Pop();
                     }
                     else if (data.State is TooltipState.Shown || data.State is TooltipState.PreFixed)
+                    {
+                        HideAndRemovePopup(data.Popup);
+                    }
+                }
+            }
+        }  
+        private void TryHideNextFixed()
+        {
+            if (shownTooltips.Any())
+            {
+                (TooltipKeys Key, TooltipPopup Popup, TooltipState.TooltipStateBase State) data = shownTooltips.Peek();
+                if (!data.Popup.Focused)
+                {
+                    if (data.State is TooltipState.Fixed)
                     {
                         HideAndRemovePopup(data.Popup);
                     }
