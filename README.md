@@ -58,3 +58,7 @@ Settings for `Show Delay` and `Make Fixed Delay` are both located on the `Toolti
 Art for UI is taken from this asset: [Clean Settings UI](https://assetstore.unity.com/packages/tools/gui/clean-settings-ui-65588)
 
 <img src="Doc/tooltip_prefab.png" width="30%"></img>
+
+[![twitter](https://github.com/shikhar1020jais1/Git-Social/blob/master/Icons/Twitter1.png (Twitter))][1]
+
+[1]: https://twitter.com/kovnirdev
